@@ -1,20 +1,19 @@
-import { PLAYER1 } from "../constants";
+import { PLAYER1, PLAYER2 } from "../constants/constants";
 
-const GameBoard = ({ onSelectSquare, activePlayer, gameBoard, setGameBoard }) => {
-    const updateGameBoard = (row, col) => setGameBoard(prevGameBoard => {
-        onSelectSquare()
-        const updatedGameBoard = [...prevGameBoard.map(innerArray => [...innerArray])];
-        updatedGameBoard[row][col] = activePlayer === PLAYER1 ? 'X' : 'O';
-        return updatedGameBoard;
-    });
+const GameBoard = ({ onSelectSquare, activePlayer, gameBoard }) => {
     return (
         <ol id="game-board">
             {gameBoard.map((row, rowIndex) =>
                 <li key={rowIndex}>
                     <ol>
-                        {row.map((playerType, colIndex) => 
+                        {row.map((playerSymbol, colIndex) => 
                             <li key={colIndex}>
-                                <button onClick={() => updateGameBoard(rowIndex, colIndex)}>{playerType}</button>
+                                <button
+                                    disabled={playerSymbol != null || !activePlayer}
+                                    className={playerSymbol != null || !activePlayer ? 'disabled' : null}
+                                    onClick={() => onSelectSquare(rowIndex, colIndex)}>
+                                        {playerSymbol === PLAYER1 ? 'X' : playerSymbol === PLAYER2 ? 'O' : null}
+                                </button>
                             </li>
                         )}
                     </ol>

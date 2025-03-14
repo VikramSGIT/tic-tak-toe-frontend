@@ -10,6 +10,7 @@ export const PLAYER_DATA = "playerData";
 export const PLAYER_TYPE = "playerType";
 export const PLAYER1_NAME = "player1Name";
 export const PLAYER2_NAME = "player2Name";
+export const PLAYER_TURN = "playerTurn";
 export const PLAYER_OFFLINE = -1;
 export const PLAYER_OFFLINE_STRING = "Offline";
 export const PLAYER1 = "PLAYER1";

@@ -1,10 +1,10 @@
 import Player from "./components/Players"
 import GameBoard from "./components/GameBoard"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import PlayerName from "./components/PlayerName";
 import LoginBanner from "./components/LoginBanner";
 import { WebSocketClient } from "./utils/server/WebSocketClient";
-import { GAME_BOARD, PLAYER1, PLAYER1_NAME, PLAYER2, PLAYER2_NAME, PLAYER_DATA, PLAYER_OFFLINE, PLAYER_OFFLINE_STRING, PLAYER_TYPE, SOCKET_PLAYER_MESSAGE, VIEWER } from "./constants";
+import { GAME_BOARD, PLAYER1, PLAYER1_NAME, PLAYER2, PLAYER2_NAME, PLAYER_DATA, PLAYER_OFFLINE, PLAYER_OFFLINE_STRING, PLAYER_TURN, PLAYER_TYPE, SOCKET_PLAYER_MESSAGE, VIEWER } from "./constants/constants";
 import log from "./utils/logger";
 
 function App() {
@@ -18,9 +18,12 @@ function App() {
 
   const [connected, setConnected] = useState(false);
 
-  const [activePlayer, setActivePlayer] = useState(PLAYER1);
-  const handleSelectSquare = () => {
-    setActivePlayer((playerType) => playerType === PLAYER1 ? PLAYER2 : PLAYER1);
+  const [activePlayer, setActivePlayer] = useState(false);
+  const [turn, setTurn] = useState(PLAYER1);
+  const handleSelectSquare = (row, col) => {
+    if(webSocketClient.current != null) {
+      webSocketClient.current.updateBoard(row, col);
+    }
   }
 
   const [name, setName] = useState("nickname");
@@ -37,10 +40,19 @@ function App() {
     } else if(playerType === PLAYER2) {
       setName(() => namePlayer2);
     }
-  }, [namePlayer1, namePlayer2])
+  }, [namePlayer1, namePlayer2]);
 
+  useEffect(() => {
+    if(turn === playerType) {
+      setActivePlayer(() => true);
+    } else {
+      setActivePlayer(() => false);
+    }
+  }, [turn, playerType]);
+
+  let webSocketClient = useRef(null);
   const initWebSocket = () => {
-    new WebSocketClient((data) => {
+    webSocketClient.current = new WebSocketClient((data) => {
       if(data[SOCKET_PLAYER_MESSAGE]) {
         if(data[SOCKET_PLAYER_MESSAGE][PLAYER_DATA]) {
           const value = data[SOCKET_PLAYER_MESSAGE][PLAYER_DATA];
@@ -53,6 +65,12 @@ function App() {
         } else if(data[SOCKET_PLAYER_MESSAGE][PLAYER_TYPE]) {
           setPlayerType(() => data[SOCKET_PLAYER_MESSAGE][PLAYER_TYPE]);
           log.debug(`Updated player type: ${data[SOCKET_PLAYER_MESSAGE][PLAYER_TYPE]}`);
+        } else if(data[SOCKET_PLAYER_MESSAGE][PLAYER_TURN]) {
+          setTurn(() => data[SOCKET_PLAYER_MESSAGE][PLAYER_TURN]);
+          log.debug(`Updated player turn: ${data[SOCKET_PLAYER_MESSAGE][PLAYER_TURN]}`);
+        } else {
+          log.error("Missed socket message:");
+          console.error(data);
         }
       }
     }, setConnected);
@@ -76,7 +94,7 @@ function App() {
               <Player playerName={namePlayer1} playerType="X" isActive={activePlayer === PLAYER1} name={namePlayer1}/>
               <Player playerName={namePlayer2} playerType="O" isActive={activePlayer === PLAYER2} name={namePlayer2}/>
             </ol>
-            <GameBoard onSelectSquare={handleSelectSquare} activePlayer={activePlayer} gameBoard={gameBoard} setGameBoard={setGameBoard} />
+            <GameBoard onSelectSquare={handleSelectSquare} activePlayer={activePlayer} gameBoard={gameBoard}/>
           </div>
         </div>
       </section>

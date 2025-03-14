@@ -1,4 +1,5 @@
-import { SERVER_BASE_URL, SERVER_SOCKET_ENDPOINT, SOCKET_PLAYER_MESSAGE, SOCKET_RETRY, SOCKET_RETRY_TIMEOUT, SOCKET_STATUS_CODE } from "../../constants";
+import PlayerCommand from "../../entity/PlayerCommand";
+import { SERVER_BASE_URL, SERVER_SOCKET_ENDPOINT, SOCKET_PLAYER_MESSAGE, SOCKET_RETRY, SOCKET_RETRY_TIMEOUT, SOCKET_STATUS_CODE } from "../../constants/constants";
 import log from "../logger";
 
 export class WebSocketClient {
@@ -11,6 +12,12 @@ export class WebSocketClient {
         this.socket.onerror = this.#onError;
         this.socket.onopen = this.#onOpen;
         this.socket.onclose = this.#onClose;
+    }
+
+    updateBoard(x, y) {
+        const command = new PlayerCommand();
+        command.commandPut(x, y);
+        this.sendMessage(JSON.stringify(command.getCommand()));
     }
 
     sendMessage(message) {
@@ -27,7 +34,7 @@ export class WebSocketClient {
             this.retryEnabled = false;
             log.error(`Socket Status code: ${json[SOCKET_STATUS_CODE]}. Error message: ${json['message']}`);
             return;
-        } 
+        }
         this.callback(json);
     }
 

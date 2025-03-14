@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { PLAYER_NAME_REGEX } from "../constants";
+import { PLAYER_NAME_REGEX } from "../constants/constants";
 import log from "../utils/logger";
 import { login, relogin } from "../utils/server/WebClient";
 

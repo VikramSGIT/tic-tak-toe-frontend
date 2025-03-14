@@ -1,4 +1,4 @@
-import { SERVER_BASE_URL } from "../../constants";
+import { SERVER_BASE_URL } from "../../constants/constants";
 import log from "../logger";
 import { RequestType } from "./RequestType";
 

@@ -258,6 +258,11 @@ ol {
   border-radius: 5px;
 }
 
+
+#game-board .disabled {
+  cursor: default;
+}
+
 #game-over {
   position: absolute;
   top: 0;
